@@ -74,7 +74,7 @@ do_sched_get() { \
 			end_time="$(echo "$time" | sed 's/.*-//')"
 			[ -z "$1" ] && $(datetest "$now" --ge "$start_time") && $(datetest "$now" --lt "$end_time") && \
 				echo "$(echo "$block" | sed 's/,.*//g' | ed -s "$NAMESFILE")" && return
-			
+
 			[ "$1" = "next" ] && $(datetest "$now" --ge "$start_time") && \
 				$(datetest "$now" --lt "$end_time") && echo "$(echo "$block" \
 				| sed 's/,.*/+1/g' | bc | ed -s "$NAMESFILE")" && return
