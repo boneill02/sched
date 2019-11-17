@@ -46,7 +46,7 @@ do_sched_get() { \
 
 	#debug
 	day="1"
-	now="1:24"
+	now="12:30"
 
 	echo "What schedule?"
 	read SCHEDULE
@@ -61,10 +61,11 @@ do_sched_get() { \
 			start_time="$(echo "$time" | sed 's/.*,//;s/-.*//')"
 			end_time="$(echo "$time" | sed 's/.*,//;s/.*-//')"
 			$(datetest "$now" --ge "$start_time") && $(datetest "$now" --lt "$end_time") && \
-				echo "$(echo "$block" | sed 's/,.*/p/g' | ed -s "$NAMESFILE")"
+				echo "$(echo "$block" | sed 's/,.*/p/g' | ed -s "$NAMESFILE")" && return
 		done
 	done
+	echo "Nothing slotted here!"
 }
 
-[ "$1" -e "setup" ] && do_sched_blocks && do_sched_times && do_sched_names && exit
+[ "$1" = "setup" ] && do_sched_blocks && do_sched_times && do_sched_names && exit
 [ -z "$1" ] && do_sched_get && exit
