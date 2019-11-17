@@ -17,6 +17,8 @@
 [ -z "$BLOCKFILE" ] && BLOCKFILE="blocks.txt"
 [ -z "$TIMESFILE" ] && TIMESFILE="times.txt"
 [ -z "$NAMESFILE" ] && NAMESFILE="names.txt"
+[ -z "$day" ] && day="$(date "+%u")"
+[ -z "$now" ] && now="$(date "+%H:%M")"
 
 SCHEDULE="A"
 
@@ -54,28 +56,33 @@ do_sched_blocks() { \
 	done
 }
 
-do_sched_get() { \
-	day="$(date "+%u")"
-	now="$(date "+%H:%M")"
-
+get_schedule() { \
 	echo "What schedule?"
 	read SCHEDULE
+}
+
+do_sched_get() { \
+	[ -z "$SCHEDULE" ] && get_schedule
 	BLOCKFILE="blocks$SCHEDULE.txt"
 	TIMESFILE="times$SCHEDULE.txt"
 	NAMESFILE="names$SCHEDULE.txt"
-
-	day_content="$(sed "/^$day:/,/^$(echo "$day+1" | bc):/p;" "$TIMESFILE" | sed "s/^$day://" | uniq)"
+	day_content="$(sed "/^$day:$/,/^$(echo "$day+1" | bc)$:/p" "$TIMESFILE" | uniq | sed "1d")"
 	for block in $(echo "$day_content" | tr '\n' ' '); do
 		time="$(echo "$block" | sed 's/.*,//')"
-		for time in "$(echo "$block" | tr '\n' ' ')"; do
-			start_time="$(echo "$time" | sed 's/.*,//;s/-.*//')"
-			end_time="$(echo "$time" | sed 's/.*,//;s/.*-//')"
-			$(datetest "$now" --ge "$start_time") && $(datetest "$now" --lt "$end_time") && \
-				echo "$(echo "$block" | sed 's/,.*/p/g' | ed -s "$NAMESFILE")" && return
+		for time in "$(echo "$block" | tr '\n' ' ' | sed 's/.*,//')"; do
+			start_time="$(echo "$time" | sed 's/-.*//')"
+			end_time="$(echo "$time" | sed 's/.*-//')"
+			[ -z "$1" ] && $(datetest "$now" --ge "$start_time") && $(datetest "$now" --lt "$end_time") && \
+				echo "$(echo "$block" | sed 's/,.*//g' | ed -s "$NAMESFILE")" && return
+			
+			[ "$1" = "next" ] && $(datetest "$now" --ge "$start_time") && \
+				$(datetest "$now" --lt "$end_time") && echo "$(echo "$block" \
+				| sed 's/,.*/+1/g' | bc | ed -s "$NAMESFILE")" && return
 		done
 	done
 	echo "Nothing slotted here!"
 }
 
 [ "$1" = "setup" ] && do_sched_blocks && do_sched_times && do_sched_names && exit
+[ "$1" = "next" ] && do_sched_get "next" && exit
 [ -z "$1" ] && do_sched_get && exit
