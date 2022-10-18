@@ -1,6 +1,6 @@
 # sched
 
-A schedule creator/editor in POSIX `sh`. It tells you what class you have now.
+A school schedule creator/editor in POSIX `sh`. It tells you what class you have now.
 
 ## Planned Features
 
@@ -12,5 +12,5 @@ A schedule creator/editor in POSIX `sh`. It tells you what class you have now.
 
 ## License
 
-Copyright (C) 2019-2021 Ben O'Neill <ben@benoneill.xyz>. License: MIT.
+Copyright (C) 2019-2021 Ben O'Neill <ben@oneill.sh>. License: MIT.
 See LICENSE for more details.
